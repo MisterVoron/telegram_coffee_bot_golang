@@ -14,7 +14,7 @@ func Init() *sql.DB {
 	}
 
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS users (
-        chat_id INTEGER PRIMARY KEY,
+        user_id INTEGER PRIMARY KEY,
         stamp_count INTEGER NOT NULL DEFAULT 0
     );`)
 	if err != nil {
