@@ -15,7 +15,7 @@ const (
 	validCode = "coffee2025" // Temporary: replace with QR-based code later
 )
 
-func HandleMessage(database *sql.DB, msg types.Message) {
+func HandleMessage(database *sql.DB, msg *types.Message) {
 	chatID := msg.Chat.ID
 	userID := msg.From.ID
 	text := msg.Text

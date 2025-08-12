@@ -2,7 +2,10 @@ module github.com/MisterVoron/telegram_coffee_bot_golang
 
 go 1.24.0
 
-require modernc.org/sqlite v1.38.2
+require (
+	github.com/joho/godotenv v1.5.1
+	modernc.org/sqlite v1.38.2
+)
 
 require (
 	github.com/dustin/go-humanize v1.0.1 // indirect
