@@ -1,7 +1,6 @@
 package bot
 
 import (
-	"bytes"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -13,10 +12,14 @@ import (
 	"github.com/MisterVoron/telegram_coffee_bot_golang/types"
 )
 
-var token string
+var (
+	token   string
+	adminID string
+)
 
 func Start(db *sql.DB) {
 	token = os.Getenv("BOT_TOKEN")
+	adminID = os.Getenv("ADMIN_ID")
 	if token == "" {
 		log.Fatal("BOT_TOKEN not set")
 	}
@@ -27,7 +30,13 @@ func Start(db *sql.DB) {
 		updates := getUpdates(offset)
 		for _, u := range updates {
 			offset = u.UpdateID + 1
-			HandleMessage(db, u.Message)
+			if u.Message != nil {
+				handleMessage(db, u.Message)
+			}
+
+			if u.CallbackQuery != nil {
+				handleCallback(db, u.CallbackQuery)
+			}
 		}
 	}
 }
@@ -45,20 +54,4 @@ func getUpdates(offset int) []types.Update {
 	var result types.UpdateResponse
 	json.Unmarshal(body, &result)
 	return result.Result
-}
-
-func SendMessage(chatID int64, text string) {
-	url := fmt.Sprintf("https://api.telegram.org/bot%s/sendMessage", token)
-
-	payload := map[string]any{
-		"chat_id": chatID,
-		"text":    text,
-	}
-
-	data, _ := json.Marshal(payload)
-
-	_, err := http.Post(url, "application/json", bytes.NewBuffer(data))
-	if err != nil {
-		log.Println("Failed to send message:", err)
-	}
 }
