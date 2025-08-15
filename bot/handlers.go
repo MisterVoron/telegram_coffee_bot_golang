@@ -21,23 +21,22 @@ const (
 )
 
 func handleMessage(database *sql.DB, msg *types.Message) {
-	chatID := msg.Chat.ID
-	userID := msg.From.ID
+	userID := msg.From.ID //userID coincides with chatID
 	text := msg.Text
 
 	switch {
 	case text == "/start":
-		sendMessage(chatID, "👋 Welcome to the Coffee Club!\nUse /stamp <code> after each visit.\nCollect 6 stamps to earn a free coffee!")
+		sendMessage(userID, "👋 Welcome to the Coffee Club!\nUse /stamp <code> after each visit.\nCollect 6 stamps to earn a free coffee!")
 
 	case text == "/status":
 		count := db.GetStampCount(database, userID)
-		sendMessage(chatID, fmt.Sprintf("☕ You have %d/%d stamps.", count, stampGoal))
+		sendMessage(userID, fmt.Sprintf("☕ You have %d/%d stamps.", count, stampGoal))
 
 	case strings.HasPrefix(text, "/stamp "):
 		code := strings.TrimSpace(text[7:])
 
 		if code != validCode {
-			sendMessage(chatID, "❌ Invalid code. Try again.")
+			sendMessage(userID, "❌ Invalid code. Try again.")
 			return
 		}
 
