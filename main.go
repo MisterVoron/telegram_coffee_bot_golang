@@ -15,7 +15,7 @@ func main() {
 	}
 
 	database := db.Init()
-	defer database.Close() // Close DB on shutdown
+	defer database.Close()
 
 	log.Println("Starting Coffee Bot...")
 	bot.Start(database)

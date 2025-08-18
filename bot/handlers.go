@@ -26,21 +26,23 @@ func handleMessage(database *sql.DB, msg *types.Message) {
 
 	switch {
 	case text == "/start":
-		sendMessage(userID, "👋 Welcome to the Coffee Club!\nUse /stamp <code> after each visit.\nCollect 6 stamps to earn a free coffee!")
+		sendMessage(userID, `👋 Добро пожаловать в кофейню!
+		Сканируй QR-код на кассе при каждом посещении.
+		Собери 6 отметок и получи бесплатный кофе!`)
 
 	case text == "/status":
 		count := db.GetStampCount(database, userID)
-		sendMessage(userID, fmt.Sprintf("☕ You have %d/%d stamps.", count, stampGoal))
+		sendMessage(userID, fmt.Sprintf("☕ У вас есть %d/%d отметок.", count, stampGoal))
 
 	case strings.HasPrefix(text, "/stamp "):
 		code := strings.TrimSpace(text[7:])
 
 		if code != validCode {
-			sendMessage(userID, "❌ Invalid code. Try again.")
+			sendMessage(userID, "❌ неправильный код. Попробуйте ещё раз.")
 			return
 		}
 
-		text := fmt.Sprintf("☕ Customer @%s requests a stamp", msg.From.Username)
+		text := fmt.Sprintf("☕ Покупатель @%s запрашивает отметку", msg.From.Username)
 		requestApprovalFromAddmin(text, adminID, userID)
 	}
 }
@@ -63,11 +65,11 @@ func sendMessage(chatID int64, text string) {
 
 func requestApprovalFromAddmin(text, adminID string, customerID int64) {
 	approve := map[string]any{
-		"text":          "✅ Approve",
+		"text":          "✅ Одобрить",
 		"callback_data": fmt.Sprintf("approve:%d", customerID),
 	}
 	reject := map[string]any{
-		"text":          "❌ Reject",
+		"text":          "❌ Отклонить",
 		"callback_data": fmt.Sprintf("reject:%d", customerID),
 	}
 	keyboard := map[string]any{
@@ -100,14 +102,14 @@ func handleCallback(database *sql.DB, callback *types.CallbackQuery) {
 		count := db.IncrementStamp(database, int64(userID))
 		if count >= stampGoal {
 			db.ResetStamp(database, int64(userID))
-			sendMessage(int64(userID), "🎉 You earned a FREE coffee! Show this to the barista.")
+			sendMessage(int64(userID), "🎉 Вы заработали бесплатный кофе! Покажите это баристе.")
 		} else {
 			sendMessage(int64(userID),
-				"✅ Stamp added! You now have "+strconv.Itoa(count)+"/"+strconv.Itoa(stampGoal)+" stamps.")
+				"✅ Отметка добавлена! У вас сейчас "+strconv.Itoa(count)+"/"+strconv.Itoa(stampGoal)+" отметок.")
 		}
-		answerCallback(token, callback.ID, "Stamp approved ✅")
+		answerCallback(token, callback.ID, "Отметка одобрена ✅")
 	} else {
-		answerCallback(token, callback.ID, "Stamp rejected ❌")
+		answerCallback(token, callback.ID, "Отметка отклонена ❌")
 	}
 }
 
