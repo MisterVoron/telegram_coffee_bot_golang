@@ -91,6 +91,8 @@ func handleCallback(database *sql.DB, callback *types.CallbackQuery) {
 		return
 	}
 
+	removeInlineKeyboard(callback.Message.Chat.ID, callback.Message.MessageID)
+
 	action := parts[0]
 	userID, _ := strconv.Atoi(parts[1])
 
@@ -115,4 +117,15 @@ func answerCallback(token, callbackID, text string) {
 	data.Set("text", text)
 
 	http.PostForm(fmt.Sprintf("https://api.telegram.org/bot%s/answerCallbackQuery", token), data)
+}
+
+func removeInlineKeyboard(chatID int64, messageID int64) {
+	url := fmt.Sprintf("https://api.telegram.org/bot%s/editMessageReplyMarkup", token)
+	payload := map[string]any{
+		"chat_id":      chatID,
+		"message_id":   messageID,
+		"reply_markup": map[string]any{}, // empty markup removes keyboard
+	}
+	data, _ := json.Marshal(payload)
+	http.Post(url, "application/json", bytes.NewBuffer(data))
 }

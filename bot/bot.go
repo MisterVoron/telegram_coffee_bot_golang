@@ -24,7 +24,7 @@ func Start(db *sql.DB) {
 		log.Fatal("BOT_TOKEN not set")
 	}
 
-	offset := 0
+	var offset int64
 
 	for {
 		updates := getUpdates(offset)
@@ -41,7 +41,7 @@ func Start(db *sql.DB) {
 	}
 }
 
-func getUpdates(offset int) []types.Update {
+func getUpdates(offset int64) []types.Update {
 	url := fmt.Sprintf("https://api.telegram.org/bot%s/getUpdates?offset=%d&timeout=30", token, offset)
 	resp, err := http.Get(url)
 	if err != nil {
