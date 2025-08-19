@@ -48,7 +48,7 @@ func handleMessage(database *sql.DB, msg *types.Message) {
 }
 
 func sendMessage(chatID int64, text string) {
-	url := fmt.Sprintf("https://api.telegram.org/bot%s/sendMessage", token)
+	url := fmt.Sprintf("%s/sendMessage", botApi)
 
 	payload := map[string]any{
 		"chat_id": chatID,
@@ -84,7 +84,7 @@ func requestApprovalFromAddmin(text, adminID string, customerID int64) {
 	data.Set("text", text)
 	data.Set("reply_markup", string(kbJSON))
 
-	http.PostForm(fmt.Sprintf("https://api.telegram.org/bot%s/sendMessage", token), data)
+	http.PostForm(fmt.Sprintf("%s/sendMessage", botApi), data)
 }
 
 func handleCallback(database *sql.DB, callback *types.CallbackQuery) {
@@ -105,24 +105,24 @@ func handleCallback(database *sql.DB, callback *types.CallbackQuery) {
 			sendMessage(int64(userID), "🎉 Вы заработали бесплатный кофе! Покажите это баристе.")
 		} else {
 			sendMessage(int64(userID),
-				"✅ Отметка добавлена! У вас сейчас "+strconv.Itoa(count)+"/"+strconv.Itoa(stampGoal)+" отметок.")
+				fmt.Sprintf("✅ Отметка добавлена! У вас сейчас %d/%d отметок.", count, stampGoal))
 		}
-		answerCallback(token, callback.ID, "Отметка одобрена ✅")
+		answerCallback(callback.ID, "Отметка одобрена ✅")
 	} else {
-		answerCallback(token, callback.ID, "Отметка отклонена ❌")
+		answerCallback(callback.ID, "Отметка отклонена ❌")
 	}
 }
 
-func answerCallback(token, callbackID, text string) {
+func answerCallback(callbackID, text string) {
 	data := url.Values{}
 	data.Set("callback_query_id", callbackID)
 	data.Set("text", text)
 
-	http.PostForm(fmt.Sprintf("https://api.telegram.org/bot%s/answerCallbackQuery", token), data)
+	http.PostForm(fmt.Sprintf("%s/answerCallbackQuery", botApi), data)
 }
 
 func removeInlineKeyboard(chatID int64, messageID int64) {
-	url := fmt.Sprintf("https://api.telegram.org/bot%s/editMessageReplyMarkup", token)
+	url := fmt.Sprintf("%s/editMessageReplyMarkup", botApi)
 	payload := map[string]any{
 		"chat_id":      chatID,
 		"message_id":   messageID,

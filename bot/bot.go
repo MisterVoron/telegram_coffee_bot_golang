@@ -13,12 +13,13 @@ import (
 )
 
 var (
-	token   string
+	botApi  string
 	adminID string
 )
 
 func Start(db *sql.DB) {
-	token = os.Getenv("BOT_TOKEN")
+	token := os.Getenv("BOT_TOKEN")
+	botApi = fmt.Sprintf("https://api.telegram.org/bot%s", token)
 	adminID = os.Getenv("ADMIN_ID")
 	if token == "" {
 		log.Fatal("BOT_TOKEN not set")
@@ -42,7 +43,7 @@ func Start(db *sql.DB) {
 }
 
 func getUpdates(offset int64) []types.Update {
-	url := fmt.Sprintf("https://api.telegram.org/bot%s/getUpdates?offset=%d&timeout=30", token, offset)
+	url := fmt.Sprintf("%s/getUpdates?offset=%d&timeout=30", botApi, offset)
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Println("GetUpdates failed:", err)
