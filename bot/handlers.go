@@ -31,7 +31,9 @@ func handleMessage(database *sql.DB, msg *types.Message) {
 		count := db.GetStampCount(database, userID)
 		sendMessage(userID, fmt.Sprintf("☕ У вас есть %d/%d отметок.", count, stampGoal))
 
-	case strings.HasPrefix(text, "/stamp "):
+	case strings.HasPrefix(text, "/start "):
+		removeMessage(msg.Chat.ID, msg.MessageID)
+
 		code := strings.TrimSpace(text[7:])
 
 		if code != validCode {
@@ -91,6 +93,7 @@ func handleCallback(database *sql.DB, callback *types.CallbackQuery) {
 	}
 
 	removeInlineKeyboard(callback.Message.Chat.ID, callback.Message.MessageID)
+	removeMessage(callback.Message.Chat.ID, callback.Message.MessageID)
 
 	action := parts[0]
 	userID, _ := strconv.Atoi(parts[1])
@@ -124,6 +127,16 @@ func removeInlineKeyboard(chatID int64, messageID int64) {
 		"chat_id":      chatID,
 		"message_id":   messageID,
 		"reply_markup": map[string]any{}, // empty markup removes keyboard
+	}
+	data, _ := json.Marshal(payload)
+	http.Post(url, "application/json", bytes.NewBuffer(data))
+}
+
+func removeMessage(chatID, messageID int64) {
+	url := fmt.Sprintf("%s/deleteMessage", botApi)
+	payload := map[string]any{
+		"chat_id":    chatID,
+		"message_id": messageID,
 	}
 	data, _ := json.Marshal(payload)
 	http.Post(url, "application/json", bytes.NewBuffer(data))
