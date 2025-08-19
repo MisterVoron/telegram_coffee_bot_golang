@@ -13,14 +13,17 @@ import (
 )
 
 var (
-	botApi  string
-	adminID string
+	botApi    string
+	adminID   string
+	validCode string
 )
 
 func Start(db *sql.DB) {
 	token := os.Getenv("BOT_TOKEN")
 	botApi = fmt.Sprintf("https://api.telegram.org/bot%s", token)
 	adminID = os.Getenv("ADMIN_ID")
+	validCode = os.Getenv("VALID_CODE")
+
 	if token == "" {
 		log.Fatal("BOT_TOKEN not set")
 	}

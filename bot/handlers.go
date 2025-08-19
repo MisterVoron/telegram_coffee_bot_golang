@@ -15,10 +15,7 @@ import (
 	"github.com/MisterVoron/telegram_coffee_bot_golang/types"
 )
 
-const (
-	stampGoal = 6
-	validCode = "coffee2025" // Temporary: replace with QR-based code later
-)
+const stampGoal = 6
 
 func handleMessage(database *sql.DB, msg *types.Message) {
 	userID := msg.From.ID //userID coincides with chatID
